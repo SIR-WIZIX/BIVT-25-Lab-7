@@ -7,51 +7,65 @@
       private string _name; /* basic fields */
       private string _surname;
       private double[] _coefs;
-      private int[] _marks;
-      public double _totalScore;
+      private int[,] _marks;
+      private double _totalScore;
+
+      private int _jumpsDone;
 
       public string Name => _name; /* getters */
       public string Surname => _surname;
-      public double[] Coefs => _coefs;
-      public int[] Marks => _marks;
+      public double[] Coefs => (double[])_coefs.Clone();
+      public int[,] Marks => (int[,])_marks.Clone();
 /* TotalScore optimized for calculating only when nessesary, not every time we ask for it */
-      public double TotalScore => _totalScore == -1.0 ? _calculateTotalScore() : _totalScore; 
+      public double TotalScore => /*_totalScore == -1.0 ? _calculateTotalScore() :*/ _calculateTotalScore(); 
 /* setters with updating _totalScore field function */
-      public void SetCriterias(double[] coefs) { _coefs = (double[])coefs.Clone(); _calculateTotalScore(); } 
-      public void Jump(int[] marks){ _marks = (int[])marks.Clone(); _calculateTotalScore(); }
+      public void SetCriterias(double[] coefs) { _coefs = (double[])coefs.Clone(); /*_calculateTotalScore(); */} 
+      public void Jump(int[] marks){
+	if (_jumpsDone >= 4) return;
+	for (int i = 0; i < marks.Length; i++){
+	  _marks[_jumpsDone, i] = marks[i];
+	}
+	_jumpsDone++;
+	if (_jumpsDone >= 4)
+	  _calculateTotalScore();
+      }
 
 /* operators overload for overall struct usage improvements and Array.Sort availability */
-      public static bool operator <(Participant left, Participant right) => left.TotalScore < right.TotalScore;
-      public static bool operator >(Participant left, Participant right) => left.TotalScore > right.TotalScore;
-      public static bool operator <=(Participant left, Participant right) => left.TotalScore <= right.TotalScore;
-      public static bool operator >=(Participant left, Participant right) => left.TotalScore >= right.TotalScore;
+      //public static bool operator <(Participant left, Participant right) => left.TotalScore < right.TotalScore;
+      //public static bool operator >(Participant left, Participant right) => left.TotalScore > right.TotalScore;
+      //public static bool operator <=(Participant left, Participant right) => left.TotalScore <= right.TotalScore;
+      //public static bool operator >=(Participant left, Participant right) => left.TotalScore >= right.TotalScore;
 
       public Participant(string _name, string _surname)
       {
 	this._name = _name;
 	this._surname = _surname;
 	_coefs = new double[4] {2.5, 2.5, 2.5, 2.5};
-	_marks = new int[4] {0, 0, 0, 0};
-	_totalScore = -1.0;
+	_marks = new int[4, 7];
+	_totalScore = -1.0; //violation of incapsulation principe :(
+	_jumpsDone = 0;
       }
 
 /* private helper for optimizing _totalScore calculation */
       private double _calculateTotalScore() 
       {
 	double sum = 0.0;
-	int worstInd = 0;
-	int bestInd = 0;
-	for (int i = 0; i < 4; i++){
-	  if (_marks[i] < _marks[worstInd]) worstInd = i;
-	}
-	for (int i = 0; i < 4; i++){
-	  if (_marks[i] > _marks[bestInd] && i != worstInd) bestInd = i;
-	}
-	for (int i = 0; i < 4; i++){
-	  if (i != bestInd && i != worstInd){
-	    sum+= _marks[i] * _coefs[i];
+	for (int j = 0; j < 4; j++){
+	  int worstInd = 0;
+	  int bestInd = 0;
+	  for (int i = 0; i < 4; i++){
+	    if (_marks[j, i] < _marks[j, worstInd]) worstInd = i;
+	  }
+	  for (int i = 0; i < 4; i++){
+	    if (_marks[j, i] > _marks[j, bestInd] && i != worstInd) bestInd = i;
+	  }
+	  for (int i = 0; i < 4; i++){
+	    if (i != bestInd && i != worstInd){
+	      sum+= _marks[j, i] * _coefs[j];
+	    }
 	  }
 	}
+	_totalScore = sum;
 	return sum;
       }
 
@@ -60,7 +74,7 @@
 	Console.Write($"Name: {Name}\nSurname: {Surname}\nTotal score: {TotalScore}\n");
       }
 
-      public static void Sort(Participant[] array) { Array.Sort(array); }
+      public static void Sort(Participant[] array) { Array.Sort(array, (left, right) => left.TotalScore.CompareTo(right.TotalScore)); }
     }
   }
 }
