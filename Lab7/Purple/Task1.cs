@@ -17,9 +17,9 @@
       public double[] Coefs => (double[])_coefs.Clone();
       public int[,] Marks => (int[,])_marks.Clone();
 /* TotalScore optimized for calculating only when nessesary, not every time we ask for it */
-      public double TotalScore => /*_totalScore == -1.0 ? _calculateTotalScore() :*/ _calculateTotalScore(); 
+      public double TotalScore => _totalScore == -1.0 ? _calculateTotalScore() : _calculateTotalScore(); 
 /* setters with updating _totalScore field function */
-      public void SetCriterias(double[] coefs) { _coefs = (double[])coefs.Clone(); /*_calculateTotalScore(); */} 
+      public void SetCriterias(double[] coefs) { _coefs = (double[])coefs.Clone(); if (_jumpsDone >= 4) _calculateTotalScore(); } 
       public void Jump(int[] marks){
 	if (_jumpsDone >= 4) return;
 	for (int i = 0; i < marks.Length; i++){
@@ -53,13 +53,13 @@
 	for (int j = 0; j < 4; j++){
 	  int worstInd = 0;
 	  int bestInd = 0;
-	  for (int i = 0; i < 4; i++){
+	  for (int i = 0; i < 7; i++){
 	    if (_marks[j, i] < _marks[j, worstInd]) worstInd = i;
 	  }
-	  for (int i = 0; i < 4; i++){
+	  for (int i = 0; i < 7; i++){
 	    if (_marks[j, i] > _marks[j, bestInd] && i != worstInd) bestInd = i;
 	  }
-	  for (int i = 0; i < 4; i++){
+	  for (int i = 0; i < 7; i++){
 	    if (i != bestInd && i != worstInd){
 	      sum+= _marks[j, i] * _coefs[j];
 	    }
@@ -71,10 +71,26 @@
 
       public void Print()
       {
-	Console.Write($"Name: {Name}\nSurname: {Surname}\nTotal score: {TotalScore}\n");
+	Console.Write($"Name: {Name}\nSurname: {Surname}\nTotal score: {TotalScore}\n\n");
       }
 
-      public static void Sort(Participant[] array) { Array.Sort(array, (left, right) => left.TotalScore.CompareTo(right.TotalScore)); }
+      public static void Sort(Participant[] array) { Array.Sort(array, (left, right) => right.TotalScore.CompareTo(left.TotalScore)); } 
+	/* old implementation replaced by standart one for speed improvements by using comparator delegate
+	int n = array.Length;
+
+	int k = 1;
+	while (k < n){
+	  if (k == 0 || array[k].TotalScore < array[k - 1].TotalScore) 
+	    k++;
+
+	  else{
+	    (array[k], array[k - 1]) = (array[k - 1], array[k]);
+	    k--;
+	  }
+	}
+	
+      }
+      */
     }
   }
 }
