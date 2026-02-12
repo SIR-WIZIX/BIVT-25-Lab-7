@@ -8,26 +8,20 @@
       private string _surname;
       private int[] _marks;
       private int _distance;
-      private double _result;
+      private int _result;
 
       public string Name => _name; /* getters */
       public string Surname => _surname;
       public int[] Marks => (int[])_marks.Clone();
       public int Distance => _distance;
-      /* TotalScore optimized for calculating only when nessesary, not every time we ask for it */
-      public double Result => _result == -1 ? _calculateResult() : _calculateResult(); 
+      /* Result optimized for calculating only when nessesary, not every time we ask for it */
+      public int Result => _result == -1 ? _calculateResult() : _calculateResult(); 
       /* setters with updating _totalScore field function */
       public void Jump(int distance, int[] marks){
 	_marks = (int[])marks.Clone();
 	_distance = distance;
 	_calculateResult();
       }
-
-      /* operators overload for overall struct usage improvements and Array.Sort availability */
-      //public static bool operator <(Participant left, Participant right) => left.TotalScore < right.TotalScore;
-      //public static bool operator >(Participant left, Participant right) => left.TotalScore > right.TotalScore;
-      //public static bool operator <=(Participant left, Participant right) => left.TotalScore <= right.TotalScore;
-      //public static bool operator >=(Participant left, Participant right) => left.TotalScore >= right.TotalScore;
 
       public Participant(string _name, string _surname)
       {
@@ -38,7 +32,7 @@
       }
 
       /* private helper for optimizing _totalScore calculation */
-      private double _calculateResult() 
+      private int _calculateResult() 
       {
 	int sum = 0;
 	int worstInd = 0;
@@ -65,22 +59,6 @@
       }
 
       public static void Sort(Participant[] array) { Array.Sort(array, (left, right) => right.Result.CompareTo(left.Result)); } 
-      /* old implementation replaced by standart one for speed improvements by using comparator delegate
-	 int n = array.Length;
-
-	 int k = 1;
-	 while (k < n){
-	 if (k == 0 || array[k].TotalScore < array[k - 1].TotalScore) 
-	 k++;
-
-	 else{
-	 (array[k], array[k - 1]) = (array[k - 1], array[k]);
-	 k--;
-	 }
-	 }
-
-	 }
-	 */
+    }
   }
-}
 }
