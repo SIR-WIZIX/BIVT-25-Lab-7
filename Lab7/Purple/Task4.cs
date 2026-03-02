@@ -37,7 +37,21 @@
       private Sportsman[] _sportsmen;
 
       public string Name => _name;
-      public Sportsman[] Sportsmen => (Sportsman[])_sportsmen.Clone();
+      public Sportsman[] Sportsmen => _sportsmen;
+      
+      //public Sportsman[] Sportsmen => _sportsmen.ToArray();
+      
+      /*
+      public string Name => _name;
+      public Sportsman[] Sportsmen { get {
+	Sportsman[] s = new Sportsman[_sportsmen.Length];
+	for (int i = 0; i < _sportsmen.Length; i++){
+	  s[i] = _sportsmen[i];
+	}
+	return s;
+        }
+      }
+      */
 
       public Group(string name)
       {
